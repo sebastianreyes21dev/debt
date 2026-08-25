@@ -12,6 +12,7 @@ export function render(container) {
           <div class="form-group"><label for="auth-password">Contraseña</label><input id="auth-password" type="password" autocomplete="current-password" minlength="8" required></div>
           <button class="btn btn-primary btn-block" type="submit">Iniciar sesión</button>
           <button class="btn btn-ghost btn-block" type="button" id="signup-btn">Crear cuenta</button>
+          <button class="btn btn-ghost btn-block" type="button" id="reset-password-btn">Olvidé mi contraseña</button>
         </form>
       </section>
     </main>`;
@@ -28,5 +29,14 @@ export function render(container) {
     const { error } = await supabase.auth.signUp({ email: email.value.trim(), password: password.value });
     if (error) toast(error.message, 'error');
     else toast('Cuenta creada. Revisa tu correo para confirmarla.', 'success', 5000);
+  });
+  container.querySelector('#reset-password-btn').addEventListener('click', async () => {
+    if (!email.value.trim()) {
+      toast('Escribe tu correo para enviarte el enlace de recuperación.', 'error');
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email.value.trim(), { redirectTo: window.location.origin });
+    if (error) toast(error.message, 'error');
+    else toast('Revisa tu correo para restablecer la contraseña.', 'success', 5000);
   });
 }

@@ -35,6 +35,7 @@ export function renderDebtCard(d, currentUserId) {
         <div class="debt-card-actions">
           <button class="icon-btn whatsapp-btn" data-action="whatsapp" data-id="${d.id}" title="Enviar recordatorio WhatsApp">💬</button>
           <button class="icon-btn settle-btn" data-action="settle" data-id="${d.id}" title="Marcar como pagada">✓</button>
+          <button class="icon-btn icon-btn-danger" data-action="delete" data-id="${d.id}" title="Eliminar deuda">🗑️</button>
         </div>` : ''}
       </div>
     </div>`;
@@ -59,6 +60,14 @@ export function bindDebtCardEvents(container) {
       if (yes) {
         store.settleDebt(id);
         toast('Deuda marcada como pagada', 'success');
+      }
+    }
+
+    if (action === 'delete') {
+      const yes = await confirmDialog('¿Eliminar esta deuda? Esta acción no se puede deshacer.');
+      if (yes) {
+        store.deleteDebt(id);
+        toast('Deuda eliminada', 'success');
       }
     }
   });

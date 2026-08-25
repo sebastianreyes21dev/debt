@@ -16,9 +16,9 @@ class EventBus {
 export class Store extends EventBus {
   constructor() {
     super();
-    this.data = this._load();
-    if (!this.data.people.length) this._seed();
     this.user = null;
+    this.data = isCloudEnabled ? emptyData() : this._load();
+    if (!isCloudEnabled && !this.data.people.length) this._seed();
   }
 
   _load() {
@@ -87,8 +87,9 @@ export class Store extends EventBus {
     if (!isCloudEnabled) return;
     const { data, error } = await supabase.from('app_data').select('data').eq('user_id', user.id).maybeSingle();
     if (error) throw error;
-    if (data?.data) this.data = this._normaliseData(data.data);
-    this._save();
+    this.data = data?.data ? this._normaliseData(data.data) : emptyData();
+    if (!this.data.people.length) this._seed();
+    else this._save();
   }
 
   _seed() {

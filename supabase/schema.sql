@@ -21,11 +21,18 @@ as $$ select exists (select 1 from public.profiles where id = auth.uid() and rol
 
 create or replace function public.create_profile()
 returns trigger language plpgsql security definer set search_path = public
-as $$ begin insert into public.profiles (id, email) values (new.id, new.email); return new; end; $$;
+as $$ begin
+  insert into public.profiles (id, email, role)
+  values (new.id, new.email, case when exists (select 1 from public.profiles) then 'client' else 'admin' end);
+  return new;
+end; $$;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users for each row execute procedure public.create_profile();
 
+drop policy if exists "profile own or admin" on public.profiles;
+drop policy if exists "data own or admin read" on public.app_data;
+drop policy if exists "client writes own data" on public.app_data;
 create policy "profile own or admin" on public.profiles for select using (id = auth.uid() or public.is_admin());
 create policy "data own or admin read" on public.app_data for select using (user_id = auth.uid() or public.is_admin());
 create policy "client writes own data" on public.app_data for all using (user_id = auth.uid()) with check (user_id = auth.uid());
@@ -41,5 +48,4 @@ end; $$;
 revoke all on function public.set_user_role(uuid, text) from public;
 grant execute on function public.set_user_role(uuid, text) to authenticated;
 
--- Después de crear tu primera cuenta, ejecútalo una sola vez para hacerla administradora:
--- update public.profiles set role = 'admin' where email = 'tu-correo@ejemplo.com';
+-- La primera cuenta registrada recibe el rol de administrador automáticamente.

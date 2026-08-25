@@ -21,3 +21,9 @@ Abre la dirección que indique Vite (normalmente `http://localhost:3000`). Para 
 ## Datos y privacidad
 
 No hay servidor ni base de datos: borrar los datos del navegador los elimina. Exporta un JSON desde **Ajustes** antes de cambiar de equipo o navegador.
+
+## Modo multiusuario (Supabase)
+
+Para activar cuentas, roles y sincronización entre dispositivos, crea un proyecto en Supabase, ejecuta [`supabase/schema.sql`](supabase/schema.sql) en su SQL Editor y copia `.env.example` a `.env.local` con la URL y la clave pública `anon` del proyecto. En Vercel añade las mismas variables de entorno y vuelve a desplegar.
+
+Las cuentas nuevas reciben el rol `client`. Convierte la primera en `admin` con la instrucción comentada al final del archivo SQL. El administrador puede consultar usuarios y cambiar sus roles; los clientes solo pueden leer y modificar sus propios datos.

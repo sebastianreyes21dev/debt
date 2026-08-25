@@ -1,5 +1,6 @@
 import { STORAGE_KEY, COLORS, DEFAULT_PEOPLE, CATEGORIES } from './constants.js';
 import { uid } from './helpers.js';
+import { isCloudEnabled, supabase } from './supabase.js';
 
 const emptyData = () => ({ people: [], debts: [], settings: { activeUserId: null } });
 const text = (value, max = 200) => typeof value === 'string' ? value.trim().slice(0, max) : '';
@@ -17,6 +18,7 @@ export class Store extends EventBus {
     super();
     this.data = this._load();
     if (!this.data.people.length) this._seed();
+    this.user = null;
   }
 
   _load() {
@@ -74,6 +76,19 @@ export class Store extends EventBus {
   _save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
     this.emit('change', this.data);
+    if (isCloudEnabled && this.user) {
+      supabase.from('app_data').upsert({ user_id: this.user.id, data: this.data, updated_at: new Date().toISOString() })
+        .then(({ error }) => { if (error) this.emit('error', error); });
+    }
+  }
+
+  async initialise(user) {
+    this.user = user;
+    if (!isCloudEnabled) return;
+    const { data, error } = await supabase.from('app_data').select('data').eq('user_id', user.id).maybeSingle();
+    if (error) throw error;
+    if (data?.data) this.data = this._normaliseData(data.data);
+    this._save();
   }
 
   _seed() {

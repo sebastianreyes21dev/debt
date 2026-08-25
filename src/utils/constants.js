@@ -27,7 +27,8 @@ export const ROUTES = {
   NEW_DEBT: 'new-debt',
   HISTORY: 'history',
   PEOPLE: 'people',
-  SETTINGS: 'settings'
+  SETTINGS: 'settings',
+  ADMIN: 'admin'
 };
 
 export const TAB_LABELS = {
@@ -35,5 +36,6 @@ export const TAB_LABELS = {
   [ROUTES.NEW_DEBT]: 'Nueva Deuda',
   [ROUTES.HISTORY]: 'Historial',
   [ROUTES.PEOPLE]: 'Personas',
-  [ROUTES.SETTINGS]: 'Ajustes'
+  [ROUTES.SETTINGS]: 'Ajustes',
+  [ROUTES.ADMIN]: 'Admin'
 };
